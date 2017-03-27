@@ -1,0 +1,149 @@
+--Mark Miller--
+  --SQL Code--
+DROP TABLE IF EXISTS Actors;
+DROP TABLE IF EXISTS Directors;
+DROP TABLE IF EXISTS People;
+DROP TABLE IF EXISTS Crew;
+DROP TABLE IF EXISTS Movie;
+
+--People Table--
+CREATE TABLE People(
+	PID  varchar  not null,
+	Name  text  not null,
+	Address  varchar  not null,
+	SpouseName  text,
+	EyeColor  text  not null,
+	HairColor  text  not null,
+	Height  int  not null,
+	Weight  int  not null,
+	DOB  date  not null,
+	FavColor text  not null, 
+	PRIMARY KEY(PID)
+);
+
+--Actors Table--
+CREATE TABLE Actors(
+	PID  varchar  not null  REFERENCES People(PID),
+	SAGDate  date,
+	UNIQUE (PID),
+	PRIMARY KEY(PID)
+);
+	
+
+--Directors Table--
+CREATE TABLE Directors(
+	PID  varchar  not null  REFERENCES People(PID),
+	DAGDate  date,
+	FavLensMaker text,
+	FilmSchool text,
+	UNIQUE (PID),
+	PRIMARY KEY(PID)
+);
+	
+	
+--Movie Table--
+CREATE TABLE Movie(
+	MID  varchar  not null,
+	MPAANum  int  not null,
+	DBOfficeSales  int  not null,
+	FBOfficeSales  int  not null,
+	ReleaseYear  int  not null,
+	DVDBRSales  int  not null,
+	Name  varchar  not null,
+	PRIMARY KEY(MID)
+);
+	
+--Crew Table--
+CREATE TABLE Crew(
+	PID varchar  not null  REFERENCES People(PID),
+	MID varchar  not null  REFERENCES Movie(MID),
+	Role varchar not null,
+	UNIQUE (PID, MID, Role),
+	PRIMARY KEY(PID, MID, Role)
+);
+
+
+--Inserting Data into People Table--
+INSERT INTO People VALUES (01, 'Sean Connery', '10 Connery Drive', 'Micheline', 
+'Brown', 'Grey', 74, 180, '08/25/1930', 'Green');
+
+INSERT INTO People VALUES (02, 'Terence Young', '11 Young Avenue', 'Sabine', 
+'Blue', 'Grey', 72, 190, '06/20/1915', 'Blue');
+
+INSERT INTO People VALUES (03, 'Guy Hamilton', '12 Hamilton Lane', 'Naomi', 
+'Hazel', 'Grey', 68, 178, '09/19/1922', 'Red');
+
+INSERT INTO People VALUES (04, 'Lewis Gilbert', '13 Gilbert Way', 'Hylda',
+'Orange', 'Grey', 71, 189, '03/06/1920', 'Purple');
+	
+INSERT INTO People VALUES (05, 'Mark Miller', '13 Miller Street', 'Game',
+'Purple', 'Brown', 69, 155, '07/02/1997', 'Purple');
+
+--Inserting Data Into Actors Table--
+INSERT INTO Actors VALUES (01, '01/01/1950');
+
+INSERT INTO Actors VALUES (02, '06/06/2010');
+
+--Inserting Data Into Directors Table--
+INSERT INTO Directors VALUES (01, '02/02/1950', 'Canon', 'New York Film Academy');
+
+INSERT INTO Directors VALUES (02, '03/03/1940', 'Leica', 'New York Film Academy');
+
+INSERT INTO Directors VALUES (03, '04/04/1945', 'Nikon', 'Los Angeles Film School');
+
+INSERT INTO Directors VALUES (04, '05/05/1950', 'Canon', 'Los Angeles Film School');
+
+
+--Inserting Data Into Movie Table--
+INSERT INTO Movie VALUES (01, 10, 1000000, 4000000, 1962, 500000, 'From Russia with Love');
+
+INSERT INTO Movie VALUES (02, 20, 2000000, 3000000, 1964, 500000, 'Goldfinger');
+
+INSERT INTO Movie VALUES (03, 30, 3000000, 2000000, 1967, 500000, 'You Only Live Twice');
+
+INSERT INTO Movie VALUES (04, 40, 4000000, 1000000, 2012, 500000, 'The Disappointment');
+	
+	
+
+--Inserting Data Into Crew Table--
+
+--Terence Young Director, Sean Connery Actor--
+INSERT INTO Crew VALUES (01, 01, 'Actor');
+
+INSERT INTO Crew VALUES (02, 01, 'Director');
+
+--Guy Hamilton Director, Sean Connery Actor--
+INSERT INTO Crew VALUES (01, 02, 'Actor');
+
+INSERT INTO Crew VALUES (03, 02, 'Director');
+
+--Lewis Gilbert Director, Sean Connery Actor--
+INSERT INTO Crew VALUES (01, 03, 'Actor');
+
+INSERT INTO Crew VALUES (04, 03, 'Director');
+
+--Sean Connery Director, Mark Miller Actor--
+INSERT INTO Crew VALUES (05, 04, 'Actor');
+
+INSERT INTO Crew VALUES (01, 04, 'Director');
+	
+
+-- Query to Determine the directors who woroked with Seam Connery--
+
+SELECT DISTINCT p.Name
+FROM People p inner join Crew c on p.PID = c.PID
+WHERE c.PID in (
+				   select PID
+				   FROM Crew
+				   WHERE Role = 'Director'
+				   and MID in (
+							   SELECT MID
+							   FROM People p inner join Crew c on p.PID = c.PID
+							   WHERE c.role = 'Actor'
+							   and p.Name = 'Sean Connery'
+							   )
+				 );
+
+
+
+
